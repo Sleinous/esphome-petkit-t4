@@ -62,7 +62,7 @@ async def pkt4_mcu_deinit_to_code(config, action_id, template_arg, args):
 	cv.Required(CONF_MOTOR): cv.enum({'drum': 0, 'tray': 1}),
 	cv.Required(CONF_MODE): cv.enum({'sense': 1, 'stop': 2, 'time': 3}),
 	cv.Optional(CONF_DIRECTION, default='stop'): cv.enum({'stop': 0, 'down': 1, 'up': 2, 'open': 1, 'close': 2}),
-	cv.Optional(CONF_SPEED): cv.positive_not_null_int,
+	cv.Optional(CONF_SPEED): cv.templatable(cv.positive_not_null_int),
 	cv.Optional(CONF_DURATION): cv.positive_int,
 	cv.Optional(CONF_TIMEOUT): cv.positive_int,
 }), cv.vol.truth(lambda conf: all(bool((i in conf) ^ (conf[CONF_MODE] == 'stop')) for i in (CONF_SPEED, CONF_TIMEOUT)) and (conf[CONF_MODE] != 'sense' or CONF_DURATION in conf) and (conf[CONF_MODE] != 'stop' or CONF_DIRECTION not in conf or conf[CONF_DIRECTION] == 'stop'))))
@@ -73,7 +73,9 @@ async def pkt4_mcu_motor_to_code(config, action_id, template_arg, args):
 	cg.add(var.set_motor(config[CONF_MOTOR]))
 	cg.add(var.set_mode(config[CONF_MODE]))
 	cg.add(var.set_direction(config[CONF_DIRECTION]))
-	if (CONF_SPEED in config): cg.add(var.set_speed(config[CONF_SPEED]))
+	if CONF_SPEED in config:
+		template_ = await cg.templatable(config[CONF_SPEED], args, cg.uint8)
+		cg.add(var.set_speed(template_))
 	if (CONF_DURATION in config): cg.add(var.set_duration(config[CONF_DURATION]))
 	if (CONF_TIMEOUT in config): cg.add(var.set_timeout(config[CONF_TIMEOUT]))
 

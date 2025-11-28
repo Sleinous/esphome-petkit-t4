@@ -1017,7 +1017,7 @@ binary_sensor:
               pkt4_mcu.motor:
                 motor: drum
                 direction: up
-                speed: !lambda return id(is_quiet_time) ? 50 : 100;
+                speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
                 mode: time
                 timeout: 150
 
@@ -1025,7 +1025,7 @@ binary_sensor:
       id: drum_level
       name: Drum Level
       entity_category: diagnostic
-      trigger_on_initial_state: true
+      publish_initial_state: true
       on_press:
         globals.set:
           id: level_needed
@@ -1063,7 +1063,7 @@ binary_sensor:
       name: Tray
       entity_category: diagnostic
       disabled_by_default: true
-      trigger_on_initial_state: true
+      publish_initial_state: true
       on_state:
         pkt4_mcu.motor:
           motor: tray
@@ -1182,7 +1182,7 @@ binary_sensor:
     pin:
       number: GPIO22
       allow_other_uses: true
-    trigger_on_initial_state: true
+    publish_initial_state: true
     on_press:
       pkt4_mcu.init:
     on_release:
@@ -1301,7 +1301,7 @@ switch:
                   pkt4_mcu.motor:
                     motor: tray
                     direction: open
-                    speed: !lambda return id(is_quiet_time) ? 50 : 100;
+                    speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
                     mode: time
                     timeout: 80
                 else:
@@ -1315,7 +1315,7 @@ switch:
                   - pkt4_mcu.motor:
                       motor: drum
                       direction: up
-                      speed: !lambda return id(is_quiet_time) ? 50 : 100;
+                      speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
                       mode: time
                       timeout: 1000
           else:
@@ -1362,14 +1362,14 @@ switch:
                   pkt4_mcu.motor:
                     motor: tray
                     direction: open
-                    speed: !lambda return id(is_quiet_time) ? 50 : 100;
+                    speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
                     mode: time
                     timeout: 80
                 else:
                   pkt4_mcu.motor:
                     motor: drum
                     direction: up
-                    speed: !lambda return id(is_quiet_time) ? 50 : 100;
+                    speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
                     mode: time
                     timeout: 120
           else:
@@ -1442,7 +1442,7 @@ switch:
             pkt4_mcu.motor:
               motor: tray
               direction: open
-              speed: !lambda return id(is_quiet_time) ? 50 : 100;
+              speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
               mode: time
               timeout: 80
     turn_off_action:
@@ -1454,7 +1454,7 @@ switch:
             pkt4_mcu.motor:
               motor: tray
               direction: close
-              speed: !lambda return id(is_quiet_time) ? 50 : 100;
+              speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
               mode: time
               timeout: 80
 
@@ -1480,7 +1480,7 @@ switch:
             - pkt4_mcu.motor:
                 motor: drum
                 direction: down
-                speed: !lambda return id(is_quiet_time) ? 50 : 100;
+                speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
                 mode: time
                 timeout: 1000
           else:
@@ -1510,7 +1510,7 @@ switch:
             pkt4_mcu.motor:
               motor: drum
               direction: up
-              speed: !lambda return id(is_quiet_time) ? 50 : 100;
+              speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
               mode: time
               timeout: 1000
           else:
@@ -1962,7 +1962,7 @@ script:
             pkt4_mcu.motor:
               motor: tray
               direction: open
-              speed: !lambda return id(is_quiet_time) ? 50 : 100;
+              speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
               mode: time
               timeout: 80
           else:
@@ -2001,7 +2001,7 @@ script:
                               pkt4_mcu.motor:
                                 motor: drum
                                 direction: down
-                                speed: !lambda return id(is_quiet_time) ? 50 : 100;
+                                speed: !lambda "return id(is_quiet_time) ? 50 : 100;"
                                 mode: time
                                 timeout: 1000
 
@@ -2136,7 +2136,7 @@ script:
           }
       # Fire HA event for automations
       - homeassistant.event:
-          event: petkit_pet_entered
+          event: esphome.petkit_pet_entered
           data:
             pet_id: !lambda return id(current_pet_id) + 1;
             pet_name: !lambda |-
@@ -2189,7 +2189,7 @@ script:
           }
       # Fire HA event for automations (before clearing pet_id)
       - homeassistant.event:
-          event: petkit_pet_exited
+          event: esphome.petkit_pet_exited
           data:
             pet_id: !lambda return id(current_pet_id) + 1;
             pet_name: !lambda |-

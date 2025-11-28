@@ -128,14 +128,14 @@ template<typename... Ts> class MotorAction: public Action<Ts...>, public Parente
 		void set_motor(uint8_t motor) { this->motor_ = motor; }
 		void set_mode(uint8_t mode) { this->mode_ = mode; }
 		void set_direction(uint8_t direction) { this->direction_ = direction; }
-		void set_speed(uint8_t speed) { this->speed_ = speed; }
+		TEMPLATABLE_VALUE(uint8_t, speed)
 		void set_duration(uint16_t duration) { this->duration_ = duration; }
 		void set_timeout(uint16_t timeout) { this->timeout_ = timeout; }
 
-		void play(const Ts &...x) override { this->parent_->motor(this->motor_, this->mode_, this->direction_, this->speed_, this->duration_, this->timeout_); }
+		void play(const Ts &...x) override { this->parent_->motor(this->motor_, this->mode_, this->direction_, this->speed_.value(x...), this->duration_, this->timeout_); }
 
 	protected:
-		uint8_t motor_, mode_, direction_, speed_{0};
+		uint8_t motor_, mode_, direction_;
 		uint16_t duration_{0}, timeout_{0};
 };
 

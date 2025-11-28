@@ -159,7 +159,7 @@ The system will automatically identify which pet is using the litter box based o
 ### Events for Automations
 The device fires native Home Assistant events that you can use in automations:
 
-**`petkit_pet_entered`** - Fired when a pet enters
+**`esphome.petkit_pet_entered`** - Fired when a pet enters
 ```yaml
 event_data:
   pet_id: 1          # Pet number (1-4)
@@ -167,7 +167,7 @@ event_data:
   weight: 4.25       # Current weight in kg
 ```
 
-**`petkit_pet_exited`** - Fired when a pet leaves
+**`esphome.petkit_pet_exited`** - Fired when a pet leaves
 ```yaml
 event_data:
   pet_id: 1          # Pet number (1-4)
@@ -182,7 +182,7 @@ automation:
   - alias: "Notify when cat uses litter box"
     trigger:
       - platform: event
-        event_type: petkit_pet_exited
+        event_type: esphome.petkit_pet_exited
     action:
       - service: notify.mobile_app
         data:
