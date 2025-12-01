@@ -10,6 +10,16 @@ namespace pkt4_mcu {
 
 static const uint16_t MAGIC = 0xA55A;
 
+// Initialization timeout in milliseconds
+static const uint32_t INIT_TIMEOUT_MS = 3000;
+// Retry delay between initialization attempts
+static const uint32_t INIT_RETRY_DELAY_MS = 500;
+// Maximum number of initialization retries
+static const uint8_t MAX_INIT_RETRIES = 5;
+// Delay before first init attempt after setup
+static const uint32_t INIT_STARTUP_DELAY_MS = 100;
+// Watchdog timeout - if no packets received for this long, consider MCU unresponsive
+static const uint32_t MCU_WATCHDOG_TIMEOUT_MS = 10000;
 // Number of samples for weight stability detection
 static const uint8_t STABILITY_SAMPLES = 5;
 // Maximum variance for considering weight stable (raw units)
@@ -67,6 +77,14 @@ class PKT4MCUComponent: public Component, public uart::UARTDevice {
 		bool inited_{false};
 		MCUPacket packet_;
 		uint8_t seq_{0};
+		
+		// Initialization state tracking
+		bool init_pending_{false};
+		uint32_t init_request_time_{0};
+		uint8_t init_retry_count_{0};
+		uint32_t last_packet_time_{0};
+		bool startup_delay_complete_{false};
+		uint32_t setup_time_{0};
 
 		// Sensors
 		sensor::Sensor *distance_sensor_{nullptr},
@@ -89,17 +107,20 @@ class PKT4MCUComponent: public Component, public uart::UARTDevice {
 		CalibrationState cal_state_{CalibrationState::IDLE};
 
 		void send_(uint8_t pid, uint8_t payload[], uint8_t len);
+		void check_init_timeout_();
+		void check_mcu_watchdog_();
+		void send_init_request_();
 		void update_weight_stability(uint32_t raw_weight);
 };
 
 template<typename... Ts> class InitAction: public Action<Ts...>, public Parented<PKT4MCUComponent> {
 	public:
-		void play(const Ts &...x) override { this->parent_->init(); }
+		void play(const Ts &... x) override { this->parent_->init(); }
 };
 
 template<typename... Ts> class DeinitAction: public Action<Ts...>, public Parented<PKT4MCUComponent> {
 	public:
-		void play(const Ts &...x) override { this->parent_->deinit(); }
+		void play(const Ts &... x) override { this->parent_->deinit(); }
 };
 
 template<typename... Ts> class MotorAction: public Action<Ts...>, public Parented<PKT4MCUComponent> {
@@ -111,7 +132,7 @@ template<typename... Ts> class MotorAction: public Action<Ts...>, public Parente
 		void set_duration(uint16_t duration) { this->duration_ = duration; }
 		void set_timeout(uint16_t timeout) { this->timeout_ = timeout; }
 
-		void play(const Ts &...x) override { this->parent_->motor(this->motor_, this->mode_, this->direction_, this->speed_.value(x...), this->duration_, this->timeout_); }
+		void play(const Ts &... x) override { this->parent_->motor(this->motor_, this->mode_, this->direction_, this->speed_.value(x...), this->duration_, this->timeout_); }
 
 	protected:
 		uint8_t motor_, mode_, direction_;
